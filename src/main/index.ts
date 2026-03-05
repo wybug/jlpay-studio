@@ -184,7 +184,7 @@ if (!app.requestSingleInstanceLock()) {
     // Setup deep link for AppImage on Linux
     await setupAppImageDeepLink()
 
-    if (isDev) {
+    if (isDev && process.env.ENABLE_DEVTOOLS === 'true') {
       installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
         .then((name) => logger.info(`Added Extension:  ${name}`))
         .catch((err) => logger.error('An error occurred: ', err))

@@ -4,8 +4,17 @@ import { Menu } from 'electron'
 import { locales } from '../utils/locales'
 import { configManager } from './ConfigManager'
 
+// Track webContents that already have context menu attached to prevent duplicate listeners
+const contextMenuAttachedWebContents = new WeakSet<Electron.WebContents>()
+
 class ContextMenu {
   public contextMenu(w: Electron.WebContents) {
+    // Prevent attaching duplicate listeners to the same webContents
+    if (contextMenuAttachedWebContents.has(w)) {
+      return
+    }
+    contextMenuAttachedWebContents.add(w)
+
     w.on('context-menu', (_event, properties) => {
       const template: MenuItemConstructorOptions[] = this.createEditMenuItems(properties)
       const filtered = template.filter((item) => item.visible !== false)

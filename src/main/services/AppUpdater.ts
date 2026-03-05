@@ -224,6 +224,7 @@ export default class AppUpdater {
   }
 
   private async _setFeedUrl() {
+    logger.info('[UPDATE_CHECK] _setFeedUrl called')
     const currentVersion = app.getVersion()
     const testPlan = BUILD_CONSTANTS.ENABLE_TEST_PLAN && configManager.getTestPlan()
     const requestedChannel = testPlan ? this._getTestChannel() : UpgradeChannel.LATEST
@@ -257,7 +258,10 @@ export default class AppUpdater {
 
     if (configUrl) {
       try {
-        logger.info(`Fetching update config from ${configUrl}`)
+        logger.info(`[UPDATE_CHECK] Fetching update config from ${configUrl}`)
+        logger.info(
+          `[UPDATE_CHECK] BUILD_BRAND=${BUILD_CONSTANTS.BUILD_BRAND}, IS_CUSTOM_BUILD=${BUILD_CONSTANTS.IS_CUSTOM_BUILD}`
+        )
         const response = await net.fetch(configUrl, {
           headers: {
             'User-Agent': generateUserAgent(),
@@ -267,13 +271,18 @@ export default class AppUpdater {
           }
         })
 
+        logger.info(`[UPDATE_CHECK] Response status: ${response.status}, ok: ${response.ok}`)
         if (response.ok) {
           config = await response.json()
           logger.info('Successfully fetched update config')
+        } else {
+          logger.warn(`[UPDATE_CHECK] Response not OK: ${response.status} ${response.statusText}`)
         }
       } catch (error) {
-        logger.error('Failed to fetch custom update config:', error as Error)
+        logger.error('[UPDATE_CHECK] Failed to fetch custom update config:', error as Error)
       }
+    } else {
+      logger.info('[UPDATE_CHECK] No config URL configured')
     }
 
     // Only fetch default config if we don't have a custom config URL
@@ -327,6 +336,7 @@ export default class AppUpdater {
   }
 
   public async checkForUpdates() {
+    logger.info('[UPDATE_CHECK] checkForUpdates called')
     if (isWin && 'PORTABLE_EXECUTABLE_DIR' in process.env) {
       return {
         currentVersion: app.getVersion(),

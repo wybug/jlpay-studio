@@ -137,40 +137,42 @@ export async function registerIpc(mainWindow: BrowserWindow, app: Electron.App) 
   const appUpdater = new AppUpdater()
   const notificationService = new NotificationService()
 
-  // Hook console.log to forward to renderer for debugging
-  const originalConsoleLog = console.log
-  const originalConsoleError = console.error
-  const originalConsoleWarn = console.warn
-
-  console.log = (...args: any[]) => {
-    originalConsoleLog(...args)
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('console-log', {
-        level: 'log',
-        message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
-      })
-    }
-  }
-
-  console.error = (...args: any[]) => {
-    originalConsoleError(...args)
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('console-log', {
-        level: 'error',
-        message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
-      })
-    }
-  }
-
-  console.warn = (...args: any[]) => {
-    originalConsoleWarn(...args)
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('console-log', {
-        level: 'warn',
-        message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
-      })
-    }
-  }
+  // Console output to terminal only - disabled forwarding to renderer
+  // to prevent stack overflow from circular reference objects
+  // and to keep backend service logs separate from browser logs
+  // const originalConsoleLog = console.log
+  // const originalConsoleError = console.error
+  // const originalConsoleWarn = console.warn
+  //
+  // console.log = (...args: any[]) => {
+  //   originalConsoleLog(...args)
+  //   if (mainWindow && !mainWindow.isDestroyed()) {
+  //     mainWindow.webContents.send('console-log', {
+  //       level: 'log',
+  //       message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
+  //     })
+  //   }
+  // }
+  //
+  // console.error = (...args: any[]) => {
+  //   originalConsoleError(...args)
+  //   if (mainWindow && !mainWindow.isDestroyed()) {
+  //     mainWindow.webContents.send('console-log', {
+  //       level: 'error',
+  //       message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
+  //     })
+  //   }
+  // }
+  //
+  // console.warn = (...args: any[]) => {
+  //   originalConsoleWarn(...args)
+  //   if (mainWindow && !mainWindow.isDestroyed()) {
+  //     mainWindow.webContents.send('console-log', {
+  //       level: 'warn',
+  //       message: args.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))).join(' ')
+  //     })
+  //   }
+  // }
 
   // Register shutdown handlers
   powerMonitorService.registerShutdownHandler(() => {

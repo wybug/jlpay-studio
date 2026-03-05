@@ -1,4 +1,6 @@
 /* eslint-disable no-restricted-syntax */
+import util from 'node:util'
+
 import type { LogContextData, LogLevel, LogSourceWithContext } from '@shared/config/logger'
 import { LEVEL, LEVEL_MAP } from '@shared/config/logger'
 import { IpcChannel } from '@shared/IpcChannel'
@@ -32,6 +34,31 @@ const ANSICOLORS = {
  */
 function colorText(text: string, color: string) {
   return ANSICOLORS[color] + text + ANSICOLORS.END
+}
+
+/**
+ * Safely format objects for console output to prevent stack overflow on circular references
+ * @param obj - The object to format
+ * @returns Formatted string
+ */
+function safeFormat(obj: any): string {
+  if (obj === null) return 'null'
+  if (obj === undefined) return 'undefined'
+  if (typeof obj === 'string') return obj
+  if (typeof obj === 'number' || typeof obj === 'boolean') return String(obj)
+
+  try {
+    // Use util.inspect with depth limit to prevent stack overflow
+    return util.inspect(obj, {
+      depth: 5,
+      maxArrayLength: 20,
+      maxStringLength: 200,
+      compact: true,
+      breakLength: Infinity
+    })
+  } catch (e) {
+    return '[Object (cannot format)]'
+  }
 }
 
 const SYSTEM_INFO = {
@@ -219,32 +246,38 @@ class LoggerService {
         case LEVEL.ERROR:
           console.error(
             `${datetimeColored} ${colorText(colorText('<ERROR>', 'RED'), 'BOLD')}${moduleString}${message}`,
-            ...meta
+            ...meta.map(safeFormat)
           )
           break
         case LEVEL.WARN:
           console.warn(
             `${datetimeColored} ${colorText(colorText('<WARN>', 'YELLOW'), 'BOLD')}${moduleString}${message}`,
-            ...meta
+            ...meta.map(safeFormat)
           )
           break
         case LEVEL.INFO:
           console.info(
             `${datetimeColored} ${colorText(colorText('<INFO>', 'GREEN'), 'BOLD')}${moduleString}${message}`,
-            ...meta
+            ...meta.map(safeFormat)
           )
           break
         case LEVEL.DEBUG:
           console.debug(
             `${datetimeColored} ${colorText(colorText('<DEBUG>', 'BLUE'), 'BOLD')}${moduleString}${message}`,
-            ...meta
+            ...meta.map(safeFormat)
           )
           break
         case LEVEL.VERBOSE:
-          console.log(`${datetimeColored} ${colorText('<VERBOSE>', 'BOLD')}${moduleString}${message}`, ...meta)
+          console.log(
+            `${datetimeColored} ${colorText('<VERBOSE>', 'BOLD')}${moduleString}${message}`,
+            ...meta.map(safeFormat)
+          )
           break
         case LEVEL.SILLY:
-          console.log(`${datetimeColored} ${colorText('<SILLY>', 'BOLD')}${moduleString}${message}`, ...meta)
+          console.log(
+            `${datetimeColored} ${colorText('<SILLY>', 'BOLD')}${moduleString}${message}`,
+            ...meta.map(safeFormat)
+          )
           break
       }
     }
