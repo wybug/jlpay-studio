@@ -2959,7 +2959,9 @@
     "no_description": "無描述",
     "no_installed_plugins": "尚未安裝任何外掛",
     "no_results": "未找到外掛",
+    "no_results_skills": "未找到技能",
     "search_placeholder": "搜尋外掛...",
+    "search_placeholder_skills": "搜尋技能...",
     "showing_results": "顯示 {{count}} 個外掛",
     "showing_results_one": "顯示 {{count}} 個外掛",
     "showing_results_other": "顯示 {{count}} 個外掛",
@@ -4773,6 +4775,10 @@
       "use_assistant": "使用助手",
       "use_model": "預設模型"
     },
+    "models_remote": {
+      "managed_by_server": "[to be translated]:Model configuration managed by server",
+      "managed_description": "[to be translated]:This is a customized brand version where model configuration is centrally managed by the server and cannot be manually modified."
+    },
     "moresetting": {
       "check": {
         "confirm": "確認勾選",
@@ -5076,6 +5082,9 @@
           "title": "服務帳戶設定"
         }
       }
+    },
+    "provider_remote": {
+      "managed_by_server": "[to be translated]:Managed by server"
     },
     "proxy": {
       "address": "代理伺服器位址",

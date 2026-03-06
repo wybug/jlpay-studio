@@ -35,6 +35,7 @@ export class WindowService {
   //to restore the focus status when miniWindow hides
   private wasMainWindowFocused: boolean = false
   private lastRendererProcessCrashTime: number = 0
+  private contextMenuListenerRegistered: boolean = false
 
   public static getInstance(): WindowService {
     if (!WindowService.instance) {
@@ -164,9 +165,13 @@ export class WindowService {
   private setupContextMenu(mainWindow: BrowserWindow) {
     contextMenu.contextMenu(mainWindow.webContents)
     // setup context menu for all webviews like miniapp
-    app.on('web-contents-created', (_, webContents) => {
-      contextMenu.contextMenu(webContents)
-    })
+    // Only register the global listener once to prevent duplicate observer registration
+    if (!this.contextMenuListenerRegistered) {
+      app.on('web-contents-created', (_, webContents) => {
+        contextMenu.contextMenu(webContents)
+      })
+      this.contextMenuListenerRegistered = true
+    }
 
     // Dangerous API
     if (isDev) {

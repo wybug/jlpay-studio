@@ -1,5 +1,26 @@
-export { default as UserAvatar } from '@renderer/assets/images/avatar.png'
-export { default as AppLogo } from '@renderer/assets/images/logo.png'
+// Import logo for the current brand
+// Brand builder copies the appropriate logo to src/renderer/src/assets/images/logo.png
+import AppLogoSrc from '@renderer/assets/images/logo.png'
+import { BUILD_CONSTANTS } from '@shared/build-constants'
 
-export const APP_NAME = 'Cherry Studio'
+// Re-export the logo - it's managed by brand-builder.js
+export const AppLogo = AppLogoSrc
+
+export { default as UserAvatar } from '@renderer/assets/images/avatar.png'
+
+export const APP_NAME = BUILD_CONSTANTS.APP_NAME
+export const ENABLE_TEST_PLAN = BUILD_CONSTANTS.ENABLE_TEST_PLAN
+export const IS_CUSTOM_BUILD = BUILD_CONSTANTS.IS_CUSTOM_BUILD
+export const APP_DESCRIPTION = BUILD_CONSTANTS.APP_DESCRIPTION
+export const ORIGINAL_PROJECT_NAME = BUILD_CONSTANTS.ORIGINAL_PROJECT_NAME
+export const ORIGINAL_PROJECT_URL = BUILD_CONSTANTS.ORIGINAL_PROJECT_URL
+export const ORIGINAL_PROJECT_LICENSE = BUILD_CONSTANTS.ORIGINAL_PROJECT_LICENSE
+export const LICENSE_URL = BUILD_CONSTANTS.LICENSE_URL
+export const SOURCE_CODE_URL = BUILD_CONSTANTS.SOURCE_CODE_URL
+export const CONTACT_EMAIL = BUILD_CONSTANTS.CONTACT_EMAIL
+export const SHOW_DOCS = BUILD_CONSTANTS.SHOW_DOCS
+export const SHOW_WEBSITE = BUILD_CONSTANTS.SHOW_WEBSITE
+export const SHOW_ENTERPRISE = BUILD_CONSTANTS.SHOW_ENTERPRISE
+export const SHOW_CAREERS = BUILD_CONSTANTS.SHOW_CAREERS
+export const GITHUB_REPO_URL = BUILD_CONSTANTS.GITHUB_REPO_URL
 export const isLocalAi = false
