@@ -523,6 +523,17 @@ function runBuild(envVars, brandConfig, profile) {
 
     console.log('\n✅ Build complete!')
 
+    // Run electron-builder with brand configuration
+    // This must run BEFORE restoring package.json so electron-builder
+    // reads the branded name from package.json
+    if (profile !== 'default') {
+      console.log('\n📦 Running electron-builder with brand configuration...')
+      execSync('npx electron-builder --config electron-builder.brand.yml', {
+        stdio: 'inherit',
+        env: { ...process.env }
+      })
+    }
+
     return { success: true, backupPath, packageJsonBackup }
   } catch (error) {
     console.error('\n❌ Build failed:', error.message)
