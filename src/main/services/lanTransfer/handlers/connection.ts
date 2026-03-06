@@ -2,6 +2,7 @@ import { isIP, type Socket } from 'node:net'
 import { platform } from 'node:os'
 
 import { loggerService } from '@logger'
+import { BUILD_CONSTANTS } from '@shared/build-constants'
 import type { LanHandshakeRequestMessage, LocalTransferPeer } from '@shared/config/types'
 import { app } from 'electron'
 
@@ -20,7 +21,7 @@ const logger = loggerService.withContext('LanTransferConnection')
 export function buildHandshakeMessage(): LanHandshakeRequestMessage {
   return {
     type: 'handshake',
-    deviceName: app.getName(),
+    deviceName: BUILD_CONSTANTS.APP_NAME,
     version: HANDSHAKE_PROTOCOL_VERSION,
     platform: platform(),
     appVersion: app.getVersion()

@@ -185,6 +185,17 @@ if (!app.requestSingleInstanceLock()) {
     // Setup macOS application menu
     appMenuService?.setupApplicationMenu()
 
+    // Set About panel options with brand information
+    app.setAboutPanelOptions({
+      applicationName: BUILD_CONSTANTS.APP_NAME,
+      applicationVersion: app.getVersion(),
+      copyright: BUILD_CONSTANTS.IS_CUSTOM_BUILD
+        ? `Based on Cherry Studio (AGPL-3.0) - Modified by ${BUILD_CONSTANTS.APP_NAME}`
+        : undefined,
+      version: app.getVersion(),
+      website: BUILD_CONSTANTS.APP_HOMEPAGE
+    })
+
     nodeTraceService.init()
     powerMonitorService.init()
     analyticsService.init()
