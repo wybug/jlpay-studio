@@ -199,6 +199,10 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    - NSHumanReadableCopyright: ${brandConfig.license && brandConfig.license.copyrightNotice ? brandConfig.license.copyrightNotice : 'Copyright © ' + new Date().getFullYear() + ' ' + brandConfig.author}
+    - CFBundleGetInfoString: ${brandConfig.name} - ${brandConfig.description}
+    - CFBundleName: ${brandConfig.productName}
+    - CFBundleDisplayName: ${brandConfig.productName}
   target:
     - target: dmg
     - target: zip
@@ -361,6 +365,47 @@ function restoreBuildConstants(backupPath) {
   console.log(`  ✓ Restored original build-constants.ts`)
 }
 
+// Modify package.json name field for brand builds
+// This affects app.getName() which is used in Dock context menus on macOS
+function writeTempPackageJson(brandConfig, profile) {
+  if (profile === 'default') {
+    return null
+  }
+
+  const packageJsonPath = path.join(__dirname, '..', 'package.json')
+  const backupPath = packageJsonPath + '.backup'
+
+  // Read original file
+  const originalContent = fs.readFileSync(packageJsonPath, 'utf8')
+  const packageJson = JSON.parse(originalContent)
+
+  // Backup original file
+  if (!fs.existsSync(backupPath)) {
+    fs.writeFileSync(backupPath, originalContent)
+  }
+
+  // Modify name field (remove spaces for valid package name)
+  const brandedName = brandConfig.productName.replace(/\s+/g, '')
+  packageJson.name = brandedName
+
+  // Write modified package.json
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n')
+  console.log(`  ✓ Modified package.json name to: ${brandedName}`)
+
+  return backupPath
+}
+
+// Restore original package.json file
+function restorePackageJson(backupPath) {
+  if (!backupPath || !fs.existsSync(backupPath)) {
+    return
+  }
+  const packageJsonPath = path.join(__dirname, '..', 'package.json')
+  fs.copyFileSync(backupPath, packageJsonPath)
+  fs.unlinkSync(backupPath)
+  console.log(`  ✓ Restored original package.json`)
+}
+
 // Write electron-builder.yml for brand build
 function writeElectronBuilderConfig(brandConfig, profile) {
   if (profile === 'default') {
@@ -381,10 +426,14 @@ function runBuild(envVars, brandConfig, profile) {
   console.log('\n🔨 Starting build with brand configuration...\n')
 
   let backupPath = null
+  let packageJsonBackup = null
 
   try {
     // Write brand constants to build-constants.ts
     backupPath = writeTempBuildConstants(envVars, envVars.BUILD_BRAND)
+
+    // Modify package.json name for brand (affects app.getName())
+    packageJsonBackup = writeTempPackageJson(brandConfig, profile)
 
     // Run typecheck
     console.log('Running: npm run typecheck')
@@ -476,14 +525,28 @@ function runBuild(envVars, brandConfig, profile) {
 
     console.log('\n✅ Build complete!')
 
-    return { success: true, backupPath }
+    // Run electron-builder with brand configuration
+    // This must run BEFORE restoring package.json so electron-builder
+    // reads the branded name from package.json
+    if (profile !== 'default') {
+      console.log('\n📦 Running electron-builder with brand configuration...')
+      execSync('npx electron-builder --config electron-builder.brand.yml', {
+        stdio: 'inherit',
+        env: { ...process.env }
+      })
+    }
+
+    return { success: true, backupPath, packageJsonBackup }
   } catch (error) {
     console.error('\n❌ Build failed:', error.message)
     // Restore on failure
     if (backupPath) {
       restoreBuildConstants(backupPath)
     }
-    return { success: false, backupPath: null }
+    if (packageJsonBackup) {
+      restorePackageJson(packageJsonBackup)
+    }
+    return { success: false, backupPath: null, packageJsonBackup: null }
   }
 }
 
@@ -519,6 +582,11 @@ function main() {
     // Restore build-constants.ts after build
     if (result.backupPath) {
       restoreBuildConstants(result.backupPath)
+    }
+
+    // Restore package.json after build
+    if (result.packageJsonBackup) {
+      restorePackageJson(result.packageJsonBackup)
     }
 
     if (!result.success) {

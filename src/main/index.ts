@@ -13,6 +13,10 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import { isDev, isLinux, isWin } from './constant'
 
 import process from 'node:process'
+import path from 'node:path'
+import os from 'node:os'
+
+import { BUILD_CONSTANTS } from '@shared/build-constants'
 
 import { registerIpc } from './ipc'
 import { agentService } from './services/agents'
@@ -44,10 +48,27 @@ import { isOvmsSupported } from './services/OvmsManager'
 
 const logger = loggerService.withContext('MainEntry')
 
+/**
+ * Brand-specific user data directory
+ * Custom builds use brand-specific data directories (e.g., ~/.jlpaystudio)
+ * Default build uses ~/.cherrystudio
+ */
+if (BUILD_CONSTANTS.IS_CUSTOM_BUILD) {
+  const brandName = BUILD_CONSTANTS.BUILD_BRAND.toLowerCase()
+  const brandDataDir = `.${brandName}studio`
+  const newPath = path.join(os.homedir(), brandDataDir)
+
+  app.setPath('userData', newPath)
+  app.setPath('sessionData', path.join(newPath, 'Sessions'))
+  app.setPath('logs', path.join(newPath, 'logs'))
+
+  logger.info(`Using custom data directory: ${newPath}`)
+}
+
 // enable local crash reports
 crashReporter.start({
-  companyName: 'CherryHQ',
-  productName: 'CherryStudio',
+  companyName: BUILD_CONSTANTS.APP_NAME,
+  productName: BUILD_CONSTANTS.APP_NAME,
   submitURL: '',
   uploadToServer: false
 })
@@ -83,8 +104,11 @@ if (isLinux && process.env.XDG_SESSION_TYPE === 'wayland') {
  * This ensures the window manager identifies the app correctly on both X11 and Wayland
  */
 if (isLinux) {
-  app.commandLine.appendSwitch('class', 'CherryStudio')
-  app.commandLine.appendSwitch('name', 'CherryStudio')
+  // Use a consistent class name based on brand for window manager identification
+  const brandName = BUILD_CONSTANTS.BUILD_BRAND as string
+  const wmClass = brandName === 'default' ? 'CherryStudio' : brandName + 'Studio'
+  app.commandLine.appendSwitch('class', wmClass)
+  app.commandLine.appendSwitch('name', wmClass)
 }
 
 // DocumentPolicyIncludeJSCallStacksInCrashReports: Enable features for unresponsive renderer js call stacks
@@ -147,7 +171,7 @@ if (!app.requestSingleInstanceLock()) {
 
     initWebviewHotkeys()
     // Set app user model id for windows
-    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || 'com.kangfenmao.CherryStudio')
+    electronApp.setAppUserModelId(import.meta.env.VITE_MAIN_BUNDLE_ID || BUILD_CONSTANTS.APP_ID)
 
     // Mac: Hide dock icon before window creation when launch to tray is set
     const isLaunchToTray = configManager.getLaunchToTray()
@@ -160,6 +184,17 @@ if (!app.requestSingleInstanceLock()) {
 
     // Setup macOS application menu
     appMenuService?.setupApplicationMenu()
+
+    // Set About panel options with brand information
+    app.setAboutPanelOptions({
+      applicationName: BUILD_CONSTANTS.APP_NAME,
+      applicationVersion: app.getVersion(),
+      copyright: BUILD_CONSTANTS.IS_CUSTOM_BUILD
+        ? `Based on Cherry Studio (AGPL-3.0) - Modified by ${BUILD_CONSTANTS.APP_NAME}`
+        : undefined,
+      version: app.getVersion(),
+      website: BUILD_CONSTANTS.APP_HOMEPAGE
+    })
 
     nodeTraceService.init()
     powerMonitorService.init()
