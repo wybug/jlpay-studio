@@ -199,6 +199,8 @@ mac:
     - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
     - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
     - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    - NSHumanReadableCopyright: ${brandConfig.license && brandConfig.license.copyrightNotice ? brandConfig.license.copyrightNotice : 'Copyright © ' + new Date().getFullYear() + ' ' + brandConfig.author}
+    - CFBundleGetInfoString: ${brandConfig.name} - ${brandConfig.description}
   target:
     - target: dmg
     - target: zip

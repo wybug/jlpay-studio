@@ -13,6 +13,10 @@ import installExtension, { REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } from 'electro
 import { isDev, isLinux, isWin } from './constant'
 
 import process from 'node:process'
+import path from 'node:path'
+import os from 'node:os'
+
+import { BUILD_CONSTANTS } from '@shared/build-constants'
 
 import { registerIpc } from './ipc'
 import { agentService } from './services/agents'
@@ -43,6 +47,23 @@ import { runAsyncFunction } from './utils'
 import { isOvmsSupported } from './services/OvmsManager'
 
 const logger = loggerService.withContext('MainEntry')
+
+/**
+ * Brand-specific user data directory
+ * Custom builds use brand-specific data directories (e.g., ~/.jlpaystudio)
+ * Default build uses ~/.cherrystudio
+ */
+if (BUILD_CONSTANTS.IS_CUSTOM_BUILD) {
+  const brandName = BUILD_CONSTANTS.BUILD_BRAND.toLowerCase()
+  const brandDataDir = `.${brandName}studio`
+  const newPath = path.join(os.homedir(), brandDataDir)
+
+  app.setPath('userData', newPath)
+  app.setPath('sessionData', path.join(newPath, 'Sessions'))
+  app.setPath('logs', path.join(newPath, 'logs'))
+
+  logger.info(`Using custom data directory: ${newPath}`)
+}
 
 // enable local crash reports
 crashReporter.start({
