@@ -79,7 +79,9 @@ function generateEnvVars(brandConfig, profile) {
     UPDATE_SERVER_URL: update.serverUrl || '',
     UPDATE_CONFIG_URL: update.configUrl || '',
     UPDATE_FEED_URL: update.feedUrl || '',
-    UPDATE_MIRROR: update.mirror || 'github'
+    UPDATE_MIRROR: update.mirror || 'github',
+    // Remote model configuration URL (defaults to serverUrl if not specified)
+    MODEL_CONFIG_URL: update.modelConfigUrl || update.serverUrl || ''
   }
   return envVars
 }
@@ -334,7 +336,9 @@ export const BUILD_CONSTANTS = {
   UPDATE_SERVER_URL: '${envVars.UPDATE_SERVER_URL}',
   UPDATE_CONFIG_URL: '${envVars.UPDATE_CONFIG_URL}',
   UPDATE_FEED_URL: '${envVars.UPDATE_FEED_URL}',
-  UPDATE_MIRROR: '${envVars.UPDATE_MIRROR}'
+  UPDATE_MIRROR: '${envVars.UPDATE_MIRROR}',
+  // Remote model configuration URL (optional, defaults to UPDATE_SERVER_URL)
+  MODEL_CONFIG_URL: '${envVars.MODEL_CONFIG_URL}'
 } as const
 
 export type BuildConstants = typeof BUILD_CONSTANTS

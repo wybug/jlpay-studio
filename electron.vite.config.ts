@@ -38,7 +38,8 @@ function brandConstantsPlugin(): Plugin {
         UPDATE_SERVER_URL: process.env.UPDATE_SERVER_URL || '',
         UPDATE_CONFIG_URL: process.env.UPDATE_CONFIG_URL || '',
         UPDATE_FEED_URL: process.env.UPDATE_FEED_URL || '',
-        UPDATE_MIRROR: process.env.UPDATE_MIRROR || 'github'
+        UPDATE_MIRROR: process.env.UPDATE_MIRROR || 'github',
+        MODEL_CONFIG_URL: process.env.MODEL_CONFIG_URL || ''
       }
 
       // Boolean keys that use getEnvBool
@@ -144,7 +145,8 @@ const buildTimeEnvVars = {
   'process.env.UPDATE_SERVER_URL': JSON.stringify(getBuildEnv('UPDATE_SERVER_URL', '')),
   'process.env.UPDATE_CONFIG_URL': JSON.stringify(getBuildEnv('UPDATE_CONFIG_URL', '')),
   'process.env.UPDATE_FEED_URL': JSON.stringify(getBuildEnv('UPDATE_FEED_URL', '')),
-  'process.env.UPDATE_MIRROR': JSON.stringify(getBuildEnv('UPDATE_MIRROR', 'github'))
+  'process.env.UPDATE_MIRROR': JSON.stringify(getBuildEnv('UPDATE_MIRROR', 'github')),
+  'process.env.MODEL_CONFIG_URL': JSON.stringify(getBuildEnv('MODEL_CONFIG_URL', ''))
 }
 
 export default defineConfig({
