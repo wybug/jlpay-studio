@@ -8,6 +8,7 @@ import type { SidebarIcon } from '@renderer/types'
 import { message } from 'antd'
 import {
   Bot,
+  CheckSquare,
   Code,
   FileSearch,
   Folder,
@@ -117,6 +118,7 @@ const SidebarIconsManager: FC<SidebarIconsManagerProps> = ({
     () =>
       ({
         assistants: <MessageSquareQuote size={16} />,
+        tasks: <CheckSquare size={16} />,
         store: <Sparkle size={16} />,
         paintings: <Palette size={16} />,
         translate: <Languages size={16} />,

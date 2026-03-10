@@ -3255,6 +3255,31 @@ const migrateConfig = {
       logger.error('migrate 199 error', error as Error)
       return state
     }
+  },
+  '200': (state: RootState) => {
+    try {
+      // Add 'tasks' icon to sidebar after 'assistants' if not already present
+      if (state.settings && state.settings.sidebarIcons) {
+        const { visible } = state.settings.sidebarIcons
+        if (!visible.includes('tasks')) {
+          const assistantsIndex = visible.indexOf('assistants')
+          if (assistantsIndex >= 0) {
+            // Insert 'tasks' after 'assistants'
+            const newVisible = [...visible]
+            newVisible.splice(assistantsIndex + 1, 0, 'tasks')
+            state.settings.sidebarIcons.visible = newVisible
+          } else {
+            // If 'assistants' not found, just add 'tasks' at the beginning
+            state.settings.sidebarIcons.visible = ['tasks', ...visible]
+          }
+        }
+      }
+      logger.info('migrate 200 success')
+      return state
+    } catch (error) {
+      logger.error('migrate 200 error', error as Error)
+      return state
+    }
   }
 }
 
