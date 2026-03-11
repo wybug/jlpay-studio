@@ -83,6 +83,7 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "0.2.56",
     "@expo/sudo-prompt": "^9.3.2",
+    "@lezer/common": "1.5.1",
     "@libsql/client": "0.14.0",
     "@napi-rs/system-ocr": "1.0.2",
     "@paymoapp/electron-shutdown-handler": "1.1.2",
@@ -247,7 +248,6 @@
     "@types/react-window": "^1",
     "@types/semver": "^7.7.1",
     "@types/swagger-jsdoc": "^6",
-    "swagger-jsdoc": "6.2.8",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/tinycolor2": "^1",
     "@types/turndown": "^5.0.5",
@@ -406,6 +406,7 @@
     "string-width": "^7.2.0",
     "striptags": "^3.2.0",
     "styled-components": "^6.1.11",
+    "swagger-jsdoc": "6.2.8",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",

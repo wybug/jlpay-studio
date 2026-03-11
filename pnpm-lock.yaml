@@ -94,6 +94,9 @@ importers:
       '@expo/sudo-prompt':
         specifier: ^9.3.2
         version: 9.3.2
+      '@lezer/common':
+        specifier: 1.5.1
+        version: 1.5.1
       '@libsql/client':
         specifier: 0.14.0
         version: 0.14.0
